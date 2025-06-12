@@ -7,14 +7,29 @@ let deps: [Package.Dependency] = [
 
 let targets: [Target] = [
     .target(
+        name: "sqlite3",
+        path: "Sources/sqlite3/sqlite3-3500100",
+        publicHeadersPath: "./include",
+        cSettings: [
+            .headerSearchPath("./include")
+        ]
+    ),
+    .target(
         name: "SQLite",
         dependencies: [
-            .product(name: "SwiftToolchainCSQLite", package: "swift-toolchain-sqlite", condition: .when(platforms: [.linux, .windows]))
+            .target(name: "sqlite3"),
+            .product(
+                name: "SwiftToolchainCSQLite", package: "swift-toolchain-sqlite",
+                condition: .when(platforms: [.linux, .windows])),
         ],
         exclude: [
-            "Info.plist"
+            "Info.plist",
+            "PrivacyInfo.xcprivacy",
+        ],
+        swiftSettings: [
+            .define("SQLITE_SWIFT_STANDALONE")
         ]
-    )
+    ),
 ]
 
 let testTargets: [Target] = [
@@ -40,7 +55,7 @@ let package = Package(
         .macOS(.v10_13),
         .watchOS(.v4),
         .tvOS(.v12),
-        .visionOS(.v1)
+        .visionOS(.v1),
     ],
     products: [
         .library(
